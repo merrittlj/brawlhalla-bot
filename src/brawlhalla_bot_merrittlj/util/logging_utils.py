@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 
 BASENAME = os.path.basename(__file__)

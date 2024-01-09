@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling", "pynput", "pyautogui"]
+build-backend = "hatchling.build"
+
+[project]
+name = "brawlhalla_bot_merrittlj"
+version = "1.0"
+authors = [
+  { name="Lucas Merritt", email="merrittlj@protonmail.com" },
+]
+description = "A bot for the game Brawlhalla."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.urls]
+Homepage = "https://github.com/merrittlj/brawlhalla-bot"
+Issues = "https://github.com/merrittlj/brawlhalla-bot/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brawlhalla_bot_merrittlj"]
