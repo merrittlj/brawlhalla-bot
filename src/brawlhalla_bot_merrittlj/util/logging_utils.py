@@ -2,7 +2,7 @@
 
 import os
 
-BASENAME = os.path.basename(__file__)
+BASENAME = os.path.basename(__file__)  # Prints the basename of the file where logpr is called.
 VERSION_NUM = 2.0
 LOGGING_HEADER = f"[{BASENAME} v{VERSION_NUM}]: "
 
