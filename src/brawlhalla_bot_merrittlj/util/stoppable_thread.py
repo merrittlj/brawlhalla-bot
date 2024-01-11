@@ -4,8 +4,8 @@ import threading
 
 
 class StoppableThread(threading.Thread):
-    def __init__(self):
-        super(StoppableThread, self).__init__()  # Call threading.Thread(parent class) __init__.
+    def __init__(self, *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)  # Call threading.Thread(parent class) __init__ with the appropriate arguments.
         self._stop_event = threading.Event()
 
     def stop(self):

@@ -38,10 +38,11 @@ def position_testing():
         time.sleep(1)
 
 class FFA_Bot:
-    def __init__(self, state: State, input_key_dict) -> None:        
+    def __init__(self, state: State, input_key_dict) -> None:
         self.set_state(state)
         self._initial_state = state
         self._input_key_dict = input_key_dict
+        self._resolution = pyautogui.size()
         
         self._program_running = False
         
@@ -54,30 +55,33 @@ class FFA_Bot:
             time.sleep(1)
 
         print("\n")
-        self._set_program_running(True)
+        self.set_program_running(True)
 
         self._thread_state_monitor.start()
         self._thread_state_inputs.start()
 
     def set_state(self, state: State):
-        logging_utils.logpr(f"Context: Transitioning to {type(state).__name__}.")
+        logging_utils.logpr(f"Context: Transitioning to {str(state())}.")
         
-        self._state = state
+        self._state = state()
         self._state.ffa_bot = self
 
     def _state_monitor(self):
-        while not thread_state_monitor.stopped():
+        while not self._thread_state_monitor.stopped():
             self._state.monitor()
 
     def _state_inputs(self):
-        while not thread_state_inputs.stopped():
+        while not self._thread_state_inputs.stopped():
             self._state.inputs()
+
+    def get_resolution(self):
+        return self._resolution
 
     def set_program_running(self, program_running):
         self._program_running = program_running
         
         print("\n")
-        logging_utils.logpr(f"Current automatic-FFA running status: {_program_running}")
+        logging_utils.logpr(f"Current automatic-FFA running status: {self._program_running}")
 
         if not self._program_running:
             self._state = self._initial_state
@@ -103,13 +107,17 @@ class FFA_Bot:
         """
         
         if self._program_running:
-            self._set_program_running(False)
+            self.set_program_running(False)
         else:
             self.launch()
 
 class FFA_State(ABC):
     _ffa_bot = None
     _actions_ran = False
+
+    @abstractmethod
+    def __str__(self):
+        raise NotImplementedError
     
     @property
     def ffa_bot(self) -> FFA_Bot:
@@ -128,10 +136,9 @@ class FFA_State(ABC):
         self._actions_ran = actions_ran
 
         
-    @abstractmethod
-    def matched_state(self) -> bool:
+    def matched_state(resolution) -> bool:
         """
-        Returns True/False if this state is "matched" or not(usually if pixels for the state are present on a 600x450 screen).
+        Returns True/False if this state is "matched" or not(usually if pixels for the state are present on the passed resolution screen).
         """
         
         raise NotImplementedError
@@ -153,68 +160,84 @@ class FFA_State(ABC):
         raise NotImplementedError
 
 class Legend_Selection(FFA_State):
-    def matched_state(self) -> bool:
-        return pyautogui.pixelMatchesColor(135, 38, (168, 127, 105)) and pyautogui.pixelMatchesColor(128, 40, (166, 124, 102))  # Checks two brown pixels on the far-left of the top game UI.
+    def __str__(self):
+        return "Legend Selection"
+    
+    def matched_state(resolution) -> bool:
+        match resolution:
+            case (600, 450):
+                return pyautogui.pixelMatchesColor(129, 28, (162, 138, 120)) and pyautogui.pixelMatchesColor(130, 33, (166, 156, 143))  # Checks two brown pixels on the far-left of the top game UI.
     
     def monitor(self) -> None:
-        if Active_Match.matched_state():
-            logging_utils.logpr("Pixels scouted for an active match.")
-            self.ffa_bot.set_state(Active_Match)
+        if Initial_Active_Match.matched_state(self.ffa_bot.get_resolution()):
+            logging_utils.logpr("Pixels scouted for the initial active match.")
+            self.ffa_bot.set_state(Initial_Active_Match)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             return
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running legend selection inputs.")
 
         logging_utils.logpr(f"Pressing \'{self.ffa_bot.input_key_lookup('input_key_light_attack')}\' key every 0.5 seconds 3 times.  -- Menu selection")
         pyautogui.press(self.ffa_bot.input_key_lookup('input_key_light_attack'), presses = 3, interval = 0.5)
 
-class Active_Match(FFA_State):
-    def matched_state(self) -> bool:
-        return pyautogui.pixelMatchesColor(407, 48, (252, 252, 252)) and pyautogui.pixelMatchesColor(410, 44, (235, 235, 235))  # Checks two white pixels in the game timer.
+class Initial_Active_Match(FFA_State):
+    def __str__(self):
+        return "Initial Active Match"
+    
+    def matched_state(resolution) -> bool:
+        match resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                # return pyautogui.pixelMatchesColor(312, 169, (255, 208, 101)) and pyautogui.pixelMatchesColor(304, 186, (255, 179, 88))  # Checks two pixels in 1 second number during countdown. More consistent that relying on in-game timers with low resolution.
+                return pyautogui.pixelMatchesColor(405, 29, (253, 253, 253)) and pyautogui.pixelMatchesColor(407, 24, (221, 221, 221))  # In place due to the final active match state. If the previous checks are used, we will have to find something different for the final active match state anyways.
     
     def monitor(self) -> None:
-        if Pause.matched_state():
+        if Pause.matched_state(self.ffa_bot.get_resolution()):
             logging_utils.logpr("Pixels scouted for the pause screen.")
             self.ffa_bot.set_state(Pause)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             # Will continuously press ESC if this function is repeatedly called(as it should be) until state is changed to the next state(pause screen).
             logging_utils.logpr("Pressing ESC key.  -- Pause menu")
             pyautogui.press('esc')
             logging_utils.logpr("Sleeping inputs for 1 second.")
             time.sleep(1)
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running active match inputs.")
         
-        logging_utils.logpr("Sleeping inputs for 5 seconds.")
+        logging_utils.logpr("Sleeping inputs 5 seconds.")
         time.sleep(5)
 
 class Pause(FFA_State):
-    def matched_state(self) -> bool:
-        return pyautogui.pixelMatchesColor(403, 387, (0, 0, 51)) and pyautogui.pixelMatchesColor(345, 63, (96, 152, 171))  # Checks dark blue pause screen background pixel and options text cyan color.
+    def __str__(self):
+        return "Pause"
+    
+    def matched_state(resolution) -> bool:
+        match resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                return pyautogui.pixelMatchesColor(391, 331, (0, 0, 51)) and pyautogui.pixelMatchesColor(382, 71, (223, 223, 3))  # Checks dark blue pause screen background pixel and yellow highlight on selected button.
     
     def monitor(self) -> None:
-        if Rejoin.matched_state():
+        if Rejoin.matched_state(self.ffa_bot.get_resolution()):
             logging_utils.logpr("Pixels scouted for rejoin screen.")
             self.ffa_bot.set_state(Rejoin)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             return
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running pause screen inputs.")
 
-        logging_utils.logpr(f"Pressing \'{self.ffa_bot.input_key_lookup('input_key_aim_up')}\' key.    -- Menu up")
-        pyautogui.press(self.ffa_bot.input_key_lookup('input_key_aim_up'))
+        logging_utils.logpr(f"Pressing \'{self.ffa_bot.input_key_lookup('input_key_up')}\' key.    -- Menu up")
+        pyautogui.press(self.ffa_bot.input_key_lookup('input_key_up'))
         
         logging_utils.logpr("Sleeping inputs for 0.5 seconds.")
         time.sleep(0.5)
@@ -223,19 +246,24 @@ class Pause(FFA_State):
         pyautogui.press(self.ffa_bot.input_key_lookup('input_key_light_attack'))
 
 class Rejoin(FFA_State):
-    def matched_state(self) -> bool:
-        return pyautogui.pixelMatchesColor(418, 219, (56, 55, 62)) and pyautogui.pixelMatchesColor(450, 209, (0, 0, 51))  # Checks rejoin UI background dark blue pixel and rejoin UI button grey pixel.
+    def __str__(self):
+        return "Rejoin"
+    
+    def matched_state(resolution) -> bool:
+        match resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                return pyautogui.pixelMatchesColor(296, 236, (0, 0, 51)) and pyautogui.pixelMatchesColor(416, 209, (56, 55, 62))  # Checks rejoin UI background dark blue pixel and rejoin UI button grey pixel.
     
     def monitor(self) -> None:
-        if Game_Over.matched_state():
-            logging_utils.logpr("Pixels scouted for the game over screen.")
-            self.ffa_bot.set_state(Game_Over)
+        if Final_Active_Match.matched_state(self.ffa_bot.get_resolution()):
+            logging_utils.logpr("Pixels scouted for the final active match.")
+            self.ffa_bot.set_state(Final_Active_Match)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             return
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running rejoin screen inputs.")
 
@@ -245,18 +273,44 @@ class Rejoin(FFA_State):
         logging_utils.logpr(f"Pressing \'{self.ffa_bot.input_key_lookup('input_key_light_attack')}\' key every 0.1 seconds 2 times.  -- Menu selection")
         pyautogui.press(self.ffa_bot.input_key_lookup('input_key_light_attack'), presses = 2, interval = 0.05)
 
-class Game_Over(FFA_State):
-    def matched_state(self) -> bool:
-        # TODO: Maybe change this? Checks a pixel on the default avatar.
-        return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+class Final_Active_Match(FFA_State):
+    def __str__(self):
+        return "Final Active Match"
+    
+    def matched_state(resolution) -> bool:
+        return Initial_Active_Match.matched_state(resolution)
     
     def monitor(self) -> None:
-        if Legend_Selection.matched_state():
+        if Game_Over.matched_state(self.ffa_bot.get_resolution()):
+            logging_utils.logpr("Pixels scouted for the game over screen.")
+            self.ffa_bot.set_state(Game_Over)
+
+    def inputs(self) -> None:
+        if self.actions_ran == True:
+            return
+        
+        self.actions_ran = True
+        
+        logging_utils.logpr("No inputs for final active match.")
+
+class Game_Over(FFA_State):
+    def __str__(self):
+        return "Game Over"
+    
+    def matched_state(resolution) -> bool:
+        # TODO: Maybe change this? Checks a pixel on the default avatar.
+        match resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                return pyautogui.pixelMatchesColor(459, 38, (52, 42, 128)) and pyautogui.pixelMatchesColor(571, 39, (204, 166, 74))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+                
+    
+    def monitor(self) -> None:
+        if Legend_Selection.matched_state(self.ffa_bot.get_resolution()):
             logging_utils.logpr("Pixels scouted for the legend selection.")
             self.ffa_bot.set_state(Legend_Selection)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             # Will continuously press menu selection if this function is repeatedly called(as it should be) until state is changed to the next state(legend selection).
             logging_utils.logpr(f"Pressing {self.ffa_bot.input_key_lookup('input_key_light_attack')} key.  -- Menu selection")
             pyautogui.press(self.ffa_bot.input_key_lookup('input_key_light_attack'))
@@ -264,21 +318,26 @@ class Game_Over(FFA_State):
             logging_utils.logpr("Sleeping inputs for 1 second.")
             time.sleep(1)
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running game over screen inputs.")
 
 class Lost_Connection(FFA_State):
-    def matched_state(self) -> bool:
-        return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+    def __str__(self):
+        return "Lost Connection"
+    
+    def matched_state(resolution) -> bool:
+        match resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
     
     def monitor(self) -> None:
-        if Legend_Selection.matched_state():
+        if Legend_Selection.matched_state(self.ffa_bot.get_resolution()):
             logging_utils.logpr("Pixels scouted for the legend selection.")
             self.ffa_bot.set_state(Legend_Selection)
 
     def inputs(self) -> None:
-        if self.actions_ran() == True:
+        if self.actions_ran == True:
             # Will continuously press menu selection if this function is repeatedly called(as it should be) until state is changed to the next state(legend selection).
             logging_utils.logpr(f"Pressing {self.ffa_bot.input_key_lookup('input_key_light_attack')} key.  -- Menu selection")
             pyautogui.press(self.ffa_bot.input_key_lookup('input_key_light_attack'))
@@ -286,7 +345,7 @@ class Lost_Connection(FFA_State):
             logging_utils.logpr("Sleeping inputs for 2 seconds.")
             time.sleep(2)
         
-        self.actions_ran(True)
+        self.actions_ran = True
         
         logging_utils.logpr("Running game over screen inputs.")
 
