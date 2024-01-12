@@ -43,6 +43,8 @@ class FFA_Bot:
         self._initial_state = state
         self._input_key_dict = input_key_dict
         self._resolution = pyautogui.size()
+        self._lost_connection_state = Lost_Connection()
+        self._lost_connection_state.ffa_bot = self
         
         self._program_running = False
         
@@ -69,6 +71,7 @@ class FFA_Bot:
     def _state_monitor(self):
         while not self._thread_state_monitor.stopped():
             self._state.monitor()
+            self._lost_connection_state.self_monitor()
 
     def _state_inputs(self):
         while not self._thread_state_inputs.stopped():
@@ -89,8 +92,8 @@ class FFA_Bot:
             self._thread_state_monitor.stop()
             self._thread_state_inputs.stop()
 
-            self._thread_state_monitor = stoppable_thread.StoppableThread(target = _state_monitor)
-            self._thread_state_inputs = stoppable_thread.StoppableThread(target = _state_inputs)
+            self._thread_state_monitor = stoppable_thread.StoppableThread(target = self._state_monitor)
+            self._thread_state_inputs = stoppable_thread.StoppableThread(target = self._state_inputs)
             self._thread_state_monitor.start()
             self._theard_state_inputs.start()
 
@@ -344,12 +347,15 @@ class Lost_Connection(FFA_State):
     def matched_state(resolution) -> bool:
         match resolution:
             case pyautogui.Size(width = 600, height = 450):
-                return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+                return pyautogui.pixelMatchesColor(223, 166, (0, 0, 51)) and pyautogui.pixelMatchesColor(285, 171, (254, 222, 1))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
 
             case pyautogui.Size(width = 1920, height = 1080):
-                # TODO
-                # return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
-                pass
+                return pyautogui.pixelMatchesColor(855, 336, (0, 0, 51)) and pyautogui.pixelMatchesColor(915, 408, (240, 209, 1))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+
+    def self_monitor(self) -> None:
+        if Lost_Connection.matched_state(self.ffa_bot.get_resolution()):
+            logging_utils.logpr("Pixels scouted for the lost connection screen.")
+            self.ffa_bot.set_state(Lost_Connection)
     
     def monitor(self) -> None:
         if Legend_Selection.matched_state(self.ffa_bot.get_resolution()):
