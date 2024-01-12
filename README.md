@@ -66,6 +66,9 @@ All configuration for the bot(excluding code modifications) is done through the 
 * `input_key_[xxxx]`: These are your Brawlhalla all-keyboard controls. Please set them accordingly before running the bot.
 * `input_keys`: These are the keys that the bot will use(all should be used in the custom-game random input mode, but this is not implemented. See issue #3.). Excluding certain keys here will break the bot in its FFA mode.
 
+## Running
+To allow the bot to properly match pixels, make sure your game is borderless windowed or fullscreen mode, where the game takes up the entire resolution/screen. Navigate to the FFA screen legend selection, run the bot using the command `python3 runner.py` within the runner repository, and press the hotkey you configured. If any issues arise, feel free to let me know in the issues tab of this repository.
+
 ## License
 
 Distributed under the Apache License 2.0. See ['LICENSE'](https://github.com/merrittlj/brawlhalla-bot/blob/master/LICENSE) for more info.
