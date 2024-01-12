@@ -165,8 +165,11 @@ class Legend_Selection(FFA_State):
     
     def matched_state(resolution) -> bool:
         match resolution:
-            case (600, 450):
+            case pyautogui.Size(width = 600, height = 450):
                 return pyautogui.pixelMatchesColor(129, 28, (162, 138, 120)) and pyautogui.pixelMatchesColor(130, 33, (166, 156, 143))  # Checks two brown pixels on the far-left of the top game UI.
+            
+            case pyautogui.Size(width = 1920, height = 1080):
+                return pyautogui.pixelMatchesColor(496, 20, (161, 126, 113)) and pyautogui.pixelMatchesColor(509, 9, (193, 173, 146))  # Checks two brown pixels on the far-left of the top game UI.
     
     def monitor(self) -> None:
         if Initial_Active_Match.matched_state(self.ffa_bot.get_resolution()):
@@ -193,6 +196,9 @@ class Initial_Active_Match(FFA_State):
             case pyautogui.Size(width = 600, height = 450):
                 # return pyautogui.pixelMatchesColor(312, 169, (255, 208, 101)) and pyautogui.pixelMatchesColor(304, 186, (255, 179, 88))  # Checks two pixels in 1 second number during countdown. More consistent that relying on in-game timers with low resolution.
                 return pyautogui.pixelMatchesColor(405, 29, (253, 253, 253)) and pyautogui.pixelMatchesColor(407, 24, (221, 221, 221))  # In place due to the final active match state. If the previous checks are used, we will have to find something different for the final active match state anyways.
+            
+            case pyautogui.Size(width = 1920, height = 1080):
+                return pyautogui.pixelMatchesColor(1392, 69, (255, 255, 255)) and pyautogui.pixelMatchesColor(1396, 79, (255, 255, 255))  # In place due to the final active match state. If the previous checks are used, we will have to find something different for the final active match state anyways.
     
     def monitor(self) -> None:
         if Pause.matched_state(self.ffa_bot.get_resolution()):
@@ -222,6 +228,9 @@ class Pause(FFA_State):
         match resolution:
             case pyautogui.Size(width = 600, height = 450):
                 return pyautogui.pixelMatchesColor(391, 331, (0, 0, 51)) and pyautogui.pixelMatchesColor(382, 71, (223, 223, 3))  # Checks dark blue pause screen background pixel and yellow highlight on selected button.
+            
+            case pyautogui.Size(width = 1920, height = 1080):
+                return pyautogui.pixelMatchesColor(693, 606, (0, 0, 51)) and pyautogui.pixelMatchesColor(733, 200, (255, 255, 0))  # Checks dark blue pause screen background pixel and yellow highlight on selected button.
     
     def monitor(self) -> None:
         if Rejoin.matched_state(self.ffa_bot.get_resolution()):
@@ -253,6 +262,9 @@ class Rejoin(FFA_State):
         match resolution:
             case pyautogui.Size(width = 600, height = 450):
                 return pyautogui.pixelMatchesColor(296, 236, (0, 0, 51)) and pyautogui.pixelMatchesColor(416, 209, (56, 55, 62))  # Checks rejoin UI background dark blue pixel and rejoin UI button grey pixel.
+
+            case pyautogui.Size(width = 1920, height = 1080):
+                return pyautogui.pixelMatchesColor(955, 491, (0, 0, 51)) and pyautogui.pixelMatchesColor(1264, 495, (56, 55, 62))  # Checks rejoin UI background dark blue pixel and rejoin UI button grey pixel.
     
     def monitor(self) -> None:
         if Final_Active_Match.matched_state(self.ffa_bot.get_resolution()):
@@ -302,6 +314,9 @@ class Game_Over(FFA_State):
         match resolution:
             case pyautogui.Size(width = 600, height = 450):
                 return pyautogui.pixelMatchesColor(459, 38, (52, 42, 128)) and pyautogui.pixelMatchesColor(571, 39, (204, 166, 74))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+
+            case pyautogui.Size(width = 1920, height = 1080):
+                return pyautogui.pixelMatchesColor(1539, 29, (52, 42, 128)) and pyautogui.pixelMatchesColor(1840, 35, (225, 208, 62))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
                 
     
     def monitor(self) -> None:
@@ -330,6 +345,11 @@ class Lost_Connection(FFA_State):
         match resolution:
             case pyautogui.Size(width = 600, height = 450):
                 return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+
+            case pyautogui.Size(width = 1920, height = 1080):
+                # TODO
+                # return pyautogui.pixelMatchesColor(574, 49, (219, 207, 82)) and pyautogui.pixelMatchesColor(462, 44, (52, 42, 128))  # Checks yellow pixel on coin symbol and background pixel on default avatar.
+                pass
     
     def monitor(self) -> None:
         if Legend_Selection.matched_state(self.ffa_bot.get_resolution()):
