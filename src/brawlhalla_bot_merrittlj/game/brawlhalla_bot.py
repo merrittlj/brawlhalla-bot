@@ -71,7 +71,8 @@ class FFA_Bot:
     def _state_monitor(self):
         while not self._thread_state_monitor.stopped():
             self._state.monitor()
-            self._lost_connection_state.self_monitor()
+            if not isinstance(self._state, Lost_Connection):
+                self._lost_connection_state.self_monitor()
 
     def _state_inputs(self):
         while not self._thread_state_inputs.stopped():
