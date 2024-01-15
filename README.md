@@ -12,7 +12,7 @@ READING ALL OF THE README.MD IS RECOMMENDED TO PROPERLY USE AND UNDERSTAND THIS!
 This was originally developed with the intent of personal use and for learning purposes. This is not harmful in any way. No responsibility is taken for any damages that may be caused as a result of this.
 
 ## Description/How
-This is a automation bot for Brawlhalla free-for-all matches. It works through tracking pixels on the screen and monitoring the game states through this, responding accordingly with the appropriate actions. No memory modification is used here, or anything else cheat-related. This bot simply finds pixels on the screen, and presses keyboard inputs accordingly through pyautogui. If you are paranoid, you can disable EAC within the Steam game launch options by adding `-noeac`.
+This is a automation bot for Brawlhalla custom games and free-for-all matches. It works through tracking pixels on the screen and monitoring the game states through this, responding accordingly with the appropriate actions. No memory modification is used here, or anything else cheat-related. This bot simply finds pixels on the screen, and presses keyboard inputs accordingly through pyautogui. If you are paranoid, you can disable EAC within the Steam game launch options by adding `-noeac`.
 
 Technically, this bot is based on a ~~bug~~ feature where leaving a match will replace you with the game's own bot. If you rejoin the match and do not input any buttons, this bot will stay, yet you will be rewarded at the end of the match. While this may sound simple in theory, accounting for stability, varying matchmaking times, lag, and efficiency disallows any approach that may be simpler in code than this.
 
@@ -67,7 +67,13 @@ All configuration for the bot(excluding code modifications) is done through the 
 * `input_keys`: These are the keys that the bot will use(all should be used in the custom-game random input mode, but this is not implemented. See issue #3.). Excluding certain keys here will break the bot in its FFA mode.
 
 ## Running
-To allow the bot to properly match pixels, make sure your game is borderless windowed or fullscreen mode, where the game takes up the entire resolution/screen. Navigate to the FFA screen legend selection, run the bot using the command `python3 runner.py` within the runner repository, and press the hotkey you configured. If any issues arise, feel free to let me know in the issues tab of this repository.
+To allow the bot to properly match pixels, make sure your game is borderless windowed or fullscreen mode, where the game takes up the entire resolution/screen. If any issues arise, feel free to let me know in the issues tab of this repository. Please note that you will need the "Brawler's mark" avatar(default avatar) enabled as your avatar, as a state within the game matches pixels on the avatar to test if the bot is in the game over screen.
+
+### FFA Bot
+If you are using the runner(recommended), set the `ffa` key in the configuration file to `"True"`(with quotes). Navigate to the FFA screen legend selection, run the bot using the command `python3 runner.py` within the runner repository, and press the hotkey you configured. The bot will now select a legend.
+
+### Custom-game Bot
+If you are using the runner(recommended), set the `ffa` key in the configuration file to `"False"`(with quotes). Navigate to the custom-game screen legend selection, run the bot using the command `python3 runner.py` within the runner repository, and press the hotkey you configured. The bot will now configure the lobby for the optimal rewards, and then select a legend.
 
 ## License
 
