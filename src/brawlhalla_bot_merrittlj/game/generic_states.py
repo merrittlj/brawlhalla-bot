@@ -113,8 +113,8 @@ class Rejoin(brawlhalla_bot.Game_State):
         logging_utils.logpr("Sleeping inputs for 6 seconds.")
         time.sleep(6)
                 
-        logging_utils.logpr(f"Pressing \'{self.bot.input_keys.get('input_key_light_attack')}\' key every 0.1 seconds 2 times.  -- Menu selection")
-        pyautogui.press(self.bot.input_keys.get('input_key_light_attack'), presses = 2, interval = 0.05)
+        logging_utils.logpr(f"Pressing \'{self.bot.input_keys.get('input_key_light_attack')}\' key.  -- Menu selection")
+        pyautogui.press(self.bot.input_keys.get('input_key_light_attack'))
 
 class Game_Over(brawlhalla_bot.Game_State):
     def __str__(self):

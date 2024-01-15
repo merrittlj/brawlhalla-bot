@@ -69,7 +69,7 @@ class Custom_Game_Bot(brawlhalla_bot.Game_Bot):
         time.sleep(0.5)
 
         # Navigate to map selection.
-        pyautogui.press(self.input_keys.get('input_key_down'), presses = 5, interval = 0.5)
+        pyautogui.press(self.input_keys.get('input_key_down'), presses = 6, interval = 0.5)
         time.sleep(0.5)
 
         # Change map selection to random maps.
@@ -85,7 +85,7 @@ class Custom_Game_Bot(brawlhalla_bot.Game_Bot):
         time.sleep(0.5)
 
         # Navigate back to start.
-        pyautogui.press(self.input_keys.get('input_key_up'), presses = 8, interval = 0.5)
+        pyautogui.press(self.input_keys.get('input_key_up'), presses = 9, interval = 0.5)
         time.sleep(0.5)
 
         # Confirm changes.
