@@ -19,7 +19,7 @@ class Initial_Active_Match(brawlhalla_bot.Game_State):
                 return (pyautogui.pixel(473, 27)[0] > 240) and pyautogui.pixelMatchesColor(473, 26, (251, 251, 251))  # In place due to the final active match state.
             
             case pyautogui.Size(width = 1920, height = 1080):
-                return pyautogui.pixelMatchesColor(1392, 69, (255, 255, 255)) and pyautogui.pixelMatchesColor(1396, 79, (255, 255, 255))  # In place due to the final active match state.
+                return pyautogui.pixelMatchesColor(1578, 70, (255, 255, 255)) and pyautogui.pixelMatchesColor(1576, 78, (254, 254, 254))  # In place due to the final active match state.
     
     def monitor(self) -> None:
         if generic_states.Pause.matched_state(self.bot.resolution):
