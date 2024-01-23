@@ -69,9 +69,20 @@ class Custom_Game_Bot(brawlhalla_bot.Game_Bot):
         time.sleep(0.5)
 
         # Navigate to map selection.
-        pyautogui.press(self.input_keys.get('input_key_down'), presses = 6, interval = 0.5)
+        
+        # Due to a strange UI bug(different selected options depending on first launch), we will check a pixel to determine where the cursor is currently.
+        match self.resolution:
+            case pyautogui.Size(width = 600, height = 450):
+                if pyautogui.pixelMatchesColor(216, 128, (34, 82, 136)) and pyautogui.pixelMatchesColor(225, 143, (32, 78, 131)):  # Checks light blue highlight colors.
+                    pyautogui.press(self.input_keys.get('input_key_down'), presses = 6, interval = 0.5)
+                else:  # The region option is selected.
+                    pyautogui.press(self.input_keys.get('input_key_down'), presses = 5, interval = 0.5)
+            case pyautogui.Size(width = 1920, height = 1080):
+                if pyautogui.pixelMatchesColor(723, 275, (35, 83, 138)) and pyautogui.pixelMatchesColor(751, 315, (33, 79, 133)):  # Checks light blue highlight colors.
+                    pyautogui.press(self.input_keys.get('input_key_down'), presses = 6, interval = 0.5)
+                else:  # The region option is selected.
+                    pyautogui.press(self.input_keys.get('input_key_down'), presses = 5, interval = 0.5)
         time.sleep(0.5)
-
         # Change map selection to random maps.
         pyautogui.press(self.input_keys.get('input_key_left'))
         time.sleep(0.5)
