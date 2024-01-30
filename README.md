@@ -6,6 +6,8 @@
 <p align="center">
 <p align="center">Smart, stable, efficient Brawlhalla match automation bot.</p>
 
+This project is currently not being developed, and most likely will not be in the future. I would recommend using the FFA-mode, as it is more stable than the custom games mode.
+
 ## Notice
 READING ALL OF THE README.MD IS RECOMMENDED TO PROPERLY USE AND UNDERSTAND THIS!
 
